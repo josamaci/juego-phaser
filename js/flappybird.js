@@ -263,7 +263,7 @@ class End extends Phaser.Scene {
 
 const config = {
     type: Phaser.AUTO,
-    width: 500,
+    width: window.innerWidth -50,
     height: window.innerHeight - 50,
     scene: [StartScene, Flappy, End],
     physics: {
