@@ -16,7 +16,7 @@ class StartScene extends Phaser.Scene {
         this.bg.setScale(this.cameras.main.width / 1920, this.cameras.main.height / 1200);
 
         // Título del juego
-        this.add.text(this.cameras.main.centerX, this.cameras.main.centerY - 100, 'Jueguito :3', {
+        this.add.text(this.cameras.main.centerX, this.cameras.main.centerY - 200, 'Jueguito :3', {
             fontSize: '64px',
             fill: '#fff',
             fontFamily: 'Arial',
@@ -50,11 +50,35 @@ class StartScene extends Phaser.Scene {
             this.toggleMusic();
         });
 
+        this.characterButton = this.add.text(this.cameras.main.centerX, this.cameras.main.centerY + 200, 'Jugador: '+(this.isPig ? "Cerdo" : "Pájaro"), {
+            fontSize: '32px',
+            fill: '#fff',
+            fontFamily: 'Arial',
+            stroke: '#000', 
+            strokeThickness: 4 
+        }).setOrigin(0.5).setInteractive();
+
+        this.characterButton.on('pointerdown', () => {
+            this.toggleCharacter();
+        });
+
         if(initFlag){
             this.music = this.sound.add('music', { loop: true });
             this.isMusicOn = false; 
+            this.isPig = false;
             initFlag = false;
         }
+    }
+
+    toggleCharacter() {
+        if (this.isPig) {
+            this.characterButton.setText('Jugador: Cerdo');
+            this.game.selectedCharacter = "pig";
+        } else {
+            this.characterButton.setText('Jugador: Pájaro');
+            this.game.selectedCharacter = "bird";
+        }
+        this.isPig = !this.isPig;
     }
 
     toggleMusic() {
@@ -88,8 +112,8 @@ class Flappy extends Phaser.Scene {
         this.load.image('pipe', 'assets/pipe.png');
         this.load.image('pipesup', 'assets/pipesup.png');
         this.load.image('white-smoke', 'assets/white-smoke.png');
-        this.load.spritesheet('flyer', 'assets/bird.png', { frameWidth: 1200, frameHeight: 1200 });
-        //this.load.spritesheet('flyer', 'assets/pig.png', { frameWidth: 542, frameHeight: 323 });
+        this.load.spritesheet('bird', 'assets/bird.png', { frameWidth: 1200, frameHeight: 1200 });
+        this.load.spritesheet('pig', 'assets/pig.png', { frameWidth: 542, frameHeight: 323 });
     }
 
     create() {
@@ -100,7 +124,8 @@ class Flappy extends Phaser.Scene {
             speed: 26, lifespan: 500, quantity: 1, scale: { start: 0.4, end: 0 }, emitting: false
           })
 
-        this.generatePlayer();
+        const selectedCharacter = this.game.selectedCharacter || 'bird';
+        this.generatePlayer(selectedCharacter);
         this.generatePipes();
 
         this.physics.world.on('worldbounds', (body) => {
@@ -138,11 +163,16 @@ class Flappy extends Phaser.Scene {
         }
     }
 
-    generatePlayer() {
-        this.player = this.physics.add.sprite(this.cameras.main.centerX, this.cameras.main.centerY, 'flyer').setScale(0.05).refreshBody();
+    generatePlayer(character) {
+        this.player = this.physics.add.sprite(this.cameras.main.centerX, this.cameras.main.centerY, character).setScale(0.05).refreshBody();
+
+        if(character==='pig'){
+            this.player.setScale(0.15)
+        }
+
         this.anims.create({
             key: 'fly',
-            frames: this.anims.generateFrameNumbers('flyer', { start: 0, end: 7 }),
+            frames: this.anims.generateFrameNumbers(character, { start: 0, end: 7 }),
             frameRate: 10,
             repeat: -1
         });
@@ -161,8 +191,8 @@ class Flappy extends Phaser.Scene {
         const playerHeight = this.player.displayHeight;
         const gap = playerHeight * 3;
 
-        const minY = (window.innerHeight / 0.8);
-        const maxY = (window.innerHeight / 1.6);
+        const minY = 1.25 * window.innerHeight;
+        const maxY =  1.75 * window.innerHeight; 
         const valor = Phaser.Math.Between(minY, maxY);
 
         const pipe = this.physics.add.group();
@@ -195,7 +225,7 @@ class Flappy extends Phaser.Scene {
     }
 
     jump() {
-        this.player.setVelocityY(-(window.innerHeight / 3));
+        this.player.setVelocityY(-(this.player.displayHeight*5));
         this.emitter.emitParticleAt(this.player.getBottomLeft().x + 8.5, this.player.getBottomLeft().y - 7.5);
     }
 
