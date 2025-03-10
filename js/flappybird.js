@@ -6,6 +6,7 @@ class StartScene extends Phaser.Scene {
     }
 
     preload() {
+        this.load.image('fin', 'assets/fin.png');
         this.load.image('sky', 'assets/background.png');
         this.load.audio('music', 'assets/music.mp3'); 
     }
@@ -108,6 +109,7 @@ class Flappy extends Phaser.Scene {
     }
 
     preload() {
+        this.load.image('fin', 'assets/fin.png');
         this.load.image('sky', 'assets/background.png');
         this.load.image('pipe', 'assets/pipe.png');
         this.load.image('pipesup', 'assets/pipesup.png');
@@ -165,17 +167,18 @@ class Flappy extends Phaser.Scene {
 
     generatePlayer(character) {
         this.player = this.physics.add.sprite(this.cameras.main.centerX, this.cameras.main.centerY, character).setScale(0.05).refreshBody();
-
-        if(character==='pig'){
-            this.player.setScale(0.15)
-        }
-
+        
         this.anims.create({
             key: 'fly',
             frames: this.anims.generateFrameNumbers(character, { start: 0, end: 7 }),
             frameRate: 10,
             repeat: -1
         });
+
+        if(character==='pig'){
+            this.player.setScale(0.15)
+        }
+
         this.player.play('fly');
 
         this.input.keyboard.on('keydown', (event) => {
@@ -241,7 +244,7 @@ class End extends Phaser.Scene {
     }
 
     create(data) {
-        this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'sky').setScale(this.cameras.main.width / 1920, this.cameras.main.height / 1200);
+        this.add.image(this.cameras.main.centerX, this.cameras.main.centerY, 'fin').setScale(this.cameras.main.width / 1920, this.cameras.main.height / 1200);
 
         this.add.text(this.cameras.main.centerX, this.cameras.main.centerY - 50, `Puntuación: ${data.score}`, {
             fontSize: '48px',
